@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../models/todo.dart';
 import 'add_todo_view.dart';
@@ -42,6 +43,12 @@ class _TodoListViewState extends State<TodoListView> {
     });
   }
 
+  void _deleteTodo(int index) {
+    setState(() {
+      _todos.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +59,39 @@ class _TodoListViewState extends State<TodoListView> {
               itemCount: _todos.length,
               itemBuilder: (context, index) {
                 final todo = _todos[index];
-                return ListTile(
-                  title: Text(todo.title),
-                  subtitle: Text('締切: ${todo.deadline.year}/${todo.deadline.month}/${todo.deadline.day}'),
-                  onTap: () => _openEditView(index),
+                final detailPreview = todo.description.isEmpty ? '' : todo.description.split('\n').first;
+                return Slidable(
+                  key: ValueKey(todo.createdAt.toIso8601String()),
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    children: [
+                      SlidableAction(
+                        onPressed: (_) => _deleteTodo(index),
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: '削除',
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    title: Text(todo.title),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (detailPreview.isNotEmpty)
+                          Text(
+                            detailPreview,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        Text('締切: ${todo.deadline.year}/${todo.deadline.month}/${todo.deadline.day}'),
+                      ],
+                    ),
+                    onTap: () => _openEditView(index),
+                  ),
                 );
               },
             ),
