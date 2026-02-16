@@ -59,9 +59,9 @@ class _TodoListViewState extends State<TodoListView> {
               itemCount: _todos.length,
               itemBuilder: (context, index) {
                 final todo = _todos[index];
-                final detailPreview = todo.description.split('\n').first;
+                final detailPreview = todo.description.isEmpty ? '' : todo.description.split('\n').first;
                 return Slidable(
-                  key: ValueKey('$index-${todo.createdAt.toIso8601String()}'),
+                  key: ValueKey(todo.createdAt.toIso8601String()),
                   endActionPane: ActionPane(
                     motion: const ScrollMotion(),
                     children: [
@@ -80,12 +80,13 @@ class _TodoListViewState extends State<TodoListView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          detailPreview,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        if (detailPreview.isNotEmpty)
+                          Text(
+                            detailPreview,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         Text('締切: ${todo.deadline.year}/${todo.deadline.month}/${todo.deadline.day}'),
                       ],
                     ),
